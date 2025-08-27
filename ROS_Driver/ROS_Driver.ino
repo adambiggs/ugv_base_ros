@@ -95,6 +95,10 @@ void moduleType_Gimbal() {
 void setup() {
   Serial.begin(115200);
   while(!Serial) {}
+  
+  // Initialize UART interrupt for efficient JSON command processing
+  initUartInterrupt();
+  
   Wire.begin(S_SDA, S_SCL, 400000);
 
   bool initialized = false;

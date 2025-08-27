@@ -502,27 +502,77 @@ void jsonCmdReceiveHandler(){
 }
 
 
-void serialCtrl() {
-  static String receivedData;
+// Global variables for interrupt-driven UART handling
+static String receivedData;
+static volatile bool jsonCommandReady = false;
+static volatile unsigned long lastCharTime = 0;
+static const unsigned long JSON_TIMEOUT = 100; // 100ms timeout for JSON completion
 
+// UART interrupt handler
+void IRAM_ATTR uartInterruptHandler() {
   while (Serial.available() > 0) {
     char receivedChar = Serial.read();
     receivedData += receivedChar;
-
+    lastCharTime = millis();
+    
     // Detect the end of the JSON string based on a specific termination character
     if (receivedChar == '\n') {
-      // Now we have received the complete JSON string
-      DeserializationError err = deserializeJson(jsonCmdReceive, receivedData);
-      if (err == DeserializationError::Ok) {
-  			if (InfoPrint == 1 && uartCmdEcho) {
-  				Serial.print(receivedData);
-  			}
-        jsonCmdReceiveHandler();
-      } else {
-        // Handle JSON parsing error here
-      }
-      // Reset the receivedData for the next JSON string
-      receivedData = "";
+      jsonCommandReady = true;
     }
   }
+}
+
+// Initialize UART interrupt
+void initUartInterrupt() {
+  // Clear any pending data
+  while (Serial.available()) {
+    Serial.read();
+  }
+  
+  // Set up UART interrupt
+  Serial.onReceive(uartInterruptHandler);
+  
+  // Initialize variables
+  receivedData = "";
+  jsonCommandReady = false;
+  lastCharTime = 0;
+}
+
+// Process received JSON commands (called from main loop)
+void processUartCommands() {
+  // Check if we have a complete JSON command
+  if (jsonCommandReady) {
+    // Process the received JSON
+    DeserializationError err = deserializeJson(jsonCmdReceive, receivedData);
+    if (err == DeserializationError::Ok) {
+      if (InfoPrint == 1 && uartCmdEcho) {
+        Serial.print(receivedData);
+      }
+      jsonCmdReceiveHandler();
+    } else {
+      // Handle JSON parsing error here
+      if (InfoPrint == 1) {
+        Serial.print("JSON parsing error: ");
+        Serial.println(err.c_str());
+      }
+    }
+    
+    // Reset for next command
+    receivedData = "";
+    jsonCommandReady = false;
+  }
+  
+  // Handle timeout for incomplete JSON (optional)
+  if (!receivedData.isEmpty() && (millis() - lastCharTime > JSON_TIMEOUT)) {
+    if (InfoPrint == 1) {
+      Serial.println("JSON timeout - clearing buffer");
+    }
+    receivedData = "";
+    jsonCommandReady = false;
+  }
+}
+
+// Legacy function for backward compatibility (now calls the new interrupt-driven handler)
+void serialCtrl() {
+  processUartCommands();
 }
