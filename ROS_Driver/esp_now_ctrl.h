@@ -88,10 +88,10 @@ void changeEspNowMode(byte inputMode) {
 
 
 // callback when data is sent
-void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
+void OnDataSent(const wifi_tx_info_t *info, esp_now_send_status_t status) {
   char macStr[18];
   snprintf(macStr, sizeof(macStr), "%02x:%02x:%02x:%02x:%02x:%02x",
-           mac_addr[0], mac_addr[1], mac_addr[2], mac_addr[3], mac_addr[4], mac_addr[5]);
+           info->des_addr[0], info->des_addr[1], info->des_addr[2], info->des_addr[3], info->des_addr[4], info->des_addr[5]);
 
   jsonInfoHttp.clear();
   jsonInfoHttp["T"] = CMD_ESP_NOW_SEND;
