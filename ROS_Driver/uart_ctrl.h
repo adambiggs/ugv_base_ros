@@ -60,6 +60,8 @@ void jsonCmdReceiveHandler(){
                         jsonCmdReceive["cx"],
 												jsonCmdReceive["cy"],
 												jsonCmdReceive["cz"]);break;
+	case CMD_BATTERY_QUERY:
+												sendBatteryData();break;
 	case CMD_BASE_FEEDBACK:
 												baseInfoFeedback();break;
 	case CMD_BASE_FEEDBACK_FLOW:

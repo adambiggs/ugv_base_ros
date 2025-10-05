@@ -28,7 +28,10 @@
 // {"T":1005,"id":1,"status":1}
 #define CMD_BUS_SERVO_ERROR 1005
 
-
+// battery info query and response
+// Query: {"T":1010}
+// Response: {"T":1010,"V":12.1,"I":1.5,"P":18.15}
+#define CMD_BATTERY_QUERY 1010
 
 
 

@@ -26,3 +26,17 @@ void inaDataUpdate(){
   loadVoltage_V  = busVoltage_V + (shuntVoltage_mV/1000);
   ina219_overflow = ina219.getOverflow();
 }
+
+void sendBatteryData(){
+  // Send battery data as JSON response
+  // Format: {"T":1010,"V":12.1,"I":1.5,"P":18.15}
+  StaticJsonDocument<128> doc;
+  doc["T"] = CMD_BATTERY_QUERY;
+  doc["V"] = loadVoltage_V;          // Voltage in V
+  doc["I"] = current_mA / 1000.0;    // Current in A (convert from mA)
+  doc["P"] = power_mW / 1000.0;      // Power in W (convert from mW)
+  
+  String jsonStr;
+  serializeJson(doc, jsonStr);
+  Serial.println(jsonStr);
+}
