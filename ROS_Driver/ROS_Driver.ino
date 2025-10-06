@@ -10,6 +10,8 @@ StaticJsonDocument<1024> jsonInfoHttp;
 #include <WiFi.h>
 #include <WebServer.h>
 #include <esp_now.h>
+#include <ESPmDNS.h>
+#include <ArduinoOTA.h>
 #include <nvs_flash.h>
 #include <Adafruit_SSD1306.h>
 #include <INA219_WE.h>
@@ -256,6 +258,40 @@ void setup() {
   if(InfoPrint == 1){Serial.println("WiFi init.");}
   initWifi();
 
+  // OTA update initialization (after WiFi is connected)
+  screenLine_3 = "OTA init";
+  oled_update();
+  if(InfoPrint == 1){Serial.println("OTA init.");}
+  ArduinoOTA.setHostname("tombo-ugv-beast");
+  ArduinoOTA.setPassword("tombo-ota-2025");  // IMPORTANT: Change this password!
+  
+  ArduinoOTA.onStart([]() {
+    String type = (ArduinoOTA.getCommand() == U_FLASH) ? "sketch" : "filesystem";
+    Serial.println("Start updating " + type);
+    // Stop all active operations during update
+    led_pwm_ctrl(0, 0);  // Turn off LEDs
+  });
+  
+  ArduinoOTA.onEnd([]() {
+    Serial.println("\nEnd");
+  });
+  
+  ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
+    Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+  });
+  
+  ArduinoOTA.onError([](ota_error_t error) {
+    Serial.printf("Error[%u]: ", error);
+    if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+    else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+    else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+    else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+    else if (error == OTA_END_ERROR) Serial.println("End Failed");
+  });
+  
+  ArduinoOTA.begin();
+  if(InfoPrint == 1){Serial.println("OTA ready. Hostname: tombo-ugv-beast");}
+
   screenLine_3 = "http & web init";
   oled_update();
   if(InfoPrint == 1){Serial.println("http & web init.");}
@@ -351,6 +387,7 @@ void loop() {
 
   serialCtrl();
   server.handleClient();
+  ArduinoOTA.handle();  // Handle OTA updates
 
   // read and compute the info of joints.
   switch (moduleType) {
