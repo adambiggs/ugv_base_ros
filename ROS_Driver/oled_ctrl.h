@@ -74,9 +74,12 @@ void oledInfoUpdate() {
     return;
   }
 
+  // Default display shows battery and system info
   float batteryPct = calculateBatteryPercentage(loadVoltage_V);
-  screenLine_2 = "Batt: " + String((int)batteryPct) + "%";
-  screenLine_3 = "V:" + String(loadVoltage_V,1) + "V I:" + String(current_mA/1000.0,1) + "A";
+  screenLine_0 = "TOMBO - UGV Beast";
+  screenLine_1 = "Battery: " + String((int)batteryPct) + "%";
+  screenLine_2 = String(loadVoltage_V,2) + "V  " + String(current_mA/1000.0,2) + "A";
+  screenLine_3 = String(power_mW/1000.0,1) + "W  [Jetson Ready]";
   oled_update();
 }
 
@@ -105,8 +108,10 @@ void setOledDefault(){
   screenDefaultMode = true;
   inaDataUpdate();
   float batteryPct = calculateBatteryPercentage(loadVoltage_V);
-  screenLine_2 = "Batt: " + String((int)batteryPct) + "%";
-  screenLine_3 = "V:" + String(loadVoltage_V,1) + "V I:" + String(current_mA/1000.0,1) + "A";
+  screenLine_0 = "TOMBO - UGV Beast";
+  screenLine_1 = "Battery: " + String((int)batteryPct) + "%";
+  screenLine_2 = String(loadVoltage_V,2) + "V  " + String(current_mA/1000.0,2) + "A";
+  screenLine_3 = String(power_mW/1000.0,1) + "W  [Jetson Ready]";
   oled_update();
   lastTimeMillis = currentTimeMillis;
 }
