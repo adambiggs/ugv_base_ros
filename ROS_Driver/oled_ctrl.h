@@ -50,6 +50,17 @@ void oled_update() {
   display.display();
 }
 
+// Calculate battery percentage (3S Li-ion: 12.6V full, 9.6V empty)
+float calculateBatteryPercentage(float voltage) {
+  const float fullVoltage = 12.6;  // 4.2V per cell * 3
+  const float emptyVoltage = 9.6;  // 3.2V per cell * 3
+  
+  if (voltage >= fullVoltage) return 100.0;
+  if (voltage <= emptyVoltage) return 0.0;
+  
+  return ((voltage - emptyVoltage) / (fullVoltage - emptyVoltage)) * 100.0;
+}
+
 // dev info update on oled.
 void oledInfoUpdate() {
   currentTimeMillis = millis();
@@ -63,7 +74,9 @@ void oledInfoUpdate() {
     return;
   }
 
-  screenLine_3 = "V:"+String(loadVoltage_V) + " s " +String(mainType) + String(moduleType);
+  float batteryPct = calculateBatteryPercentage(loadVoltage_V);
+  screenLine_2 = "Batt: " + String((int)batteryPct) + "%";
+  screenLine_3 = "V:" + String(loadVoltage_V,1) + "V I:" + String(current_mA/1000.0,1) + "A";
   oled_update();
 }
 
@@ -91,7 +104,9 @@ void oledCtrl(byte inputLineNum, String inputMegs) {
 void setOledDefault(){
   screenDefaultMode = true;
   inaDataUpdate();
-  screenLine_3 = "V:"+String(loadVoltage_V);
+  float batteryPct = calculateBatteryPercentage(loadVoltage_V);
+  screenLine_2 = "Batt: " + String((int)batteryPct) + "%";
+  screenLine_3 = "V:" + String(loadVoltage_V,1) + "V I:" + String(current_mA/1000.0,1) + "A";
   oled_update();
   lastTimeMillis = currentTimeMillis;
 }
