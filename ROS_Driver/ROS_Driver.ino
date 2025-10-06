@@ -14,7 +14,7 @@ StaticJsonDocument<1024> jsonInfoHttp;
 #include <Adafruit_SSD1306.h>
 #include <INA219_WE.h>
 #include <ESP32Encoder.h>
-#include <PID_v2.h>
+#include <PID_v1.h>
 #include <SimpleKalmanFilter.h>
 #include <math.h>
 #include "ICM_20948.h"
