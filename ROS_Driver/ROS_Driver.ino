@@ -19,6 +19,9 @@ StaticJsonDocument<1024> jsonInfoHttp;
 #include <math.h>
 #include "ICM_20948.h"
 
+// define json cmd.
+#include "json_cmd.h"
+
 // functions for barrery info.
 #include "battery_ctrl.h"
 
@@ -36,9 +39,6 @@ StaticJsonDocument<1024> jsonInfoHttp;
 
 // functions for gimbal ctrl.
 #include "gimbal_module.h"
-
-// define json cmd.
-#include "json_cmd.h"
 
 // functions for IMU ctrl.
 #include "IMU_ctrl.h"
