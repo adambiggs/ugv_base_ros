@@ -6,6 +6,10 @@ float spd_rate_A = 1.0;
 float spd_rate_B = 1.0;
 bool heartbeatStopFlag = false;
 
+// LEDC channels for motor PWM (old API - ESP32 Arduino v2.x)
+#define MOTOR_CH_A 2
+#define MOTOR_CH_B 3
+
 void movtionPinInit(){
   pinMode(AIN1, OUTPUT);
   pinMode(AIN2, OUTPUT);
@@ -14,8 +18,11 @@ void movtionPinInit(){
   pinMode(BIN2, OUTPUT);
   pinMode(PWMB, OUTPUT);
 
-  ledcAttach(PWMA, freq, ANALOG_WRITE_BITS);
-  ledcAttach(PWMB, freq, ANALOG_WRITE_BITS);
+  // Old API: setup channel then attach pin
+  ledcSetup(MOTOR_CH_A, freq, ANALOG_WRITE_BITS);
+  ledcSetup(MOTOR_CH_B, freq, ANALOG_WRITE_BITS);
+  ledcAttachPin(PWMA, MOTOR_CH_A);
+  ledcAttachPin(PWMB, MOTOR_CH_B);
 
   digitalWrite(AIN1, LOW);
   digitalWrite(AIN2, LOW);
@@ -44,12 +51,12 @@ void switchPortCtrlA(float pwmInputA){
   if(pwmIntA > 0){
     digitalWrite(AIN1, LOW);
     digitalWrite(AIN2, HIGH);
-    ledcWrite(PWMA, pwmIntA);
+    ledcWrite(MOTOR_CH_A, pwmIntA);
   }
   else{
     digitalWrite(AIN1, HIGH);
     digitalWrite(AIN2, LOW);
-    ledcWrite(PWMA,-pwmIntA);
+    ledcWrite(MOTOR_CH_A,-pwmIntA);
   }
 }
 
@@ -65,12 +72,12 @@ void switchPortCtrlB(float pwmInputB){
   if(pwmIntB > 0){
     digitalWrite(BIN1, LOW);
     digitalWrite(BIN2, HIGH);
-    ledcWrite(PWMB, pwmIntB);
+    ledcWrite(MOTOR_CH_B, pwmIntB);
   }
   else{
     digitalWrite(BIN1, HIGH);
     digitalWrite(BIN2, LOW);
-    ledcWrite(PWMB,-pwmIntB);
+    ledcWrite(MOTOR_CH_B,-pwmIntB);
   }
 }
 
@@ -212,23 +219,23 @@ void leftCtrl(float pwmInputA){
     if(pwmIntA < 0){
       digitalWrite(AIN1, HIGH);
       digitalWrite(AIN2, LOW);
-      ledcWrite(PWMA, abs(pwmIntA));
+      ledcWrite(MOTOR_CH_A, abs(pwmIntA));
     }
     else{
       digitalWrite(AIN1, LOW);
       digitalWrite(AIN2, HIGH);
-      ledcWrite(PWMA, abs(pwmIntA));
+      ledcWrite(MOTOR_CH_A, abs(pwmIntA));
     }
   }else{
     if(pwmIntA < 0){
       digitalWrite(AIN1, LOW);
       digitalWrite(AIN2, HIGH);
-      ledcWrite(PWMA, abs(pwmIntA));
+      ledcWrite(MOTOR_CH_A, abs(pwmIntA));
     }
     else{
       digitalWrite(AIN1, HIGH);
       digitalWrite(AIN2, LOW);
-      ledcWrite(PWMA, abs(pwmIntA));
+      ledcWrite(MOTOR_CH_A, abs(pwmIntA));
     }
   }
 }
@@ -239,23 +246,23 @@ void rightCtrl(float pwmInputB){
     if(pwmIntB < 0){
       digitalWrite(BIN1, HIGH);
       digitalWrite(BIN2, LOW);
-      ledcWrite(PWMB, abs(pwmIntB));
+      ledcWrite(MOTOR_CH_B, abs(pwmIntB));
     }
     else{
       digitalWrite(BIN1, LOW);
       digitalWrite(BIN2, HIGH);
-      ledcWrite(PWMB, abs(pwmIntB));
+      ledcWrite(MOTOR_CH_B, abs(pwmIntB));
     }
   }else{
     if(pwmIntB < 0){
       digitalWrite(BIN1, LOW);
       digitalWrite(BIN2, HIGH);
-      ledcWrite(PWMB, abs(pwmIntB));
+      ledcWrite(MOTOR_CH_B, abs(pwmIntB));
     }
     else{
       digitalWrite(BIN1, HIGH);
       digitalWrite(BIN2, LOW);
-      ledcWrite(PWMB, abs(pwmIntB));
+      ledcWrite(MOTOR_CH_B, abs(pwmIntB));
     }
   }
 }
