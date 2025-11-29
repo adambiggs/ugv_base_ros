@@ -35,7 +35,7 @@ bool runNewJsonCmd = false;
 // 1: RaspRover
 // 2: UGV Rover
 // 3: UGV Beast
-byte mainType = 2;
+byte mainType = 3;  // Tombo uses UGV Beast platform
 
 // 0: [Base default] without RoArm-M2 and gimbal.
 // 1: [RoArm default] RoArm-M2 mounted on the UGV.
